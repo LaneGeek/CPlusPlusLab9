@@ -3,7 +3,7 @@
 #include "Player.hpp"
 //#include "Dealer.h"
 
-//#define TEST_HAND_METHODS
+#define TEST_HAND_METHODS
 #define TEST_PLAYER_METHODS
 
 using namespace std;
@@ -59,7 +59,7 @@ int main() {
 #ifdef TEST_PLAYER_METHODS
     cout << "\n\nThis tests the player methods of setting stake and making a bet" << endl;
 
-    /*myHand.setStake(100);
+    myHand.setStake(100);
     cout << "Stake should be 100, stake is " << myHand.getStake() << endl;
     cout << "\nNow trying to bet more than stake: ";
     if ( myHand.makeBet(200) )
@@ -93,7 +93,7 @@ int main() {
         cout << " did not allow legal bet \n";
     }
     myHand.lost();
-    cout << "\nAfter losing stake should be 130, is: " << myHand.getStake() << endl;*/
+    cout << "\nAfter losing stake should be 130, is: " << myHand.getStake() << endl;
 
 #endif // TEST_PLAYER_METHODS
 
