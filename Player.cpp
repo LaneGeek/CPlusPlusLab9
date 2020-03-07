@@ -7,9 +7,11 @@ Player::Player() {
 }
 
 Player::Player(int stake) {
+    myHand = new BlackJackHand();
     this->stake = stake;
 }
 
+// destructor
 Player::~Player() {
     delete myHand;
 }
@@ -26,7 +28,7 @@ int Player::getStake() {
 
 // other methods
 bool Player::takeCard(PlayingCard *c) {
-    myHand->addCard(c);
+    return myHand->addCard(c);
 }
 
 std::string Player::showHand() {
@@ -46,11 +48,11 @@ int Player::getScore() {
 }
 
 bool Player::busted() {
-    return getHighScore() > 21;
+    return myHand->isBust();
 }
 
 bool Player::wantCard() {
-    return getScore() < 16;
+    return getHighScore() < 16;
 }
 
 void Player::clearHand() {

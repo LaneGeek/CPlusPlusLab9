@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include "Player.hpp"
-//#include "Dealer.h"
+#include "Dealer.hpp"
 
 #define TEST_HAND_METHODS
 #define TEST_PLAYER_METHODS

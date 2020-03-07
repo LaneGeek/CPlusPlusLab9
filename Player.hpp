@@ -14,6 +14,8 @@ public:
     // constructors
     Player();
     Player(int stake);
+
+    // destructor
     ~Player();
 
     //setter
@@ -24,7 +26,7 @@ public:
 
     // other methods
     bool takeCard(PlayingCard *c);
-    std::string showHand();
+    virtual std::string showHand();
     int getLowScore();
     int getHighScore();
     int getScore();
