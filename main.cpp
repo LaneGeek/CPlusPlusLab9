@@ -1,97 +1,226 @@
-
 #include <iostream>
+#include <cstdlib>
+#include <limits>
 #include <time.h>
 #include "Player.hpp"
 #include "Dealer.hpp"
 
-
 using namespace std;
 
-//#define TEST_HAND_METHODS
-#define TEST_DEALER_METHODS
+int getStake();
+int getBet(int stake);
+void showTable(Dealer & dealer, Player & player);
+void showFullTable(Dealer & dealer, Player & player);
+bool getResponse(string question);
 
-int main() {
+
+
+int main()
+{
+    // minimun deck before reshuffling
+    const int MINDECK = 20;
+    // number of shuffles for new deck
+    const int NUM_SHUFFLES = 7;
+    int bet;
+    bool hit;
 
     // initialize random number generator
     srand( (unsigned int)time(NULL) );
-    // Create a Blackjack dealer object
-    Dealer myHand;
 
-#ifdef TEST_HAND_METHODS
-    cout << "This tests the dealer hand methods the same as PlayerTest " << endl;
-        // arrays of values and suits for normal cards
-    char values[] = {'A','2','3','4','5','6','7','8','9','T','J','Q','K'};
-    char suits[] = {'C','H','D','S'};
+    // create player and dealer
+    // start with shuffled deck
+    Dealer dealer(NUM_SHUFFLES);
+    Player player;
 
-	const int DECK_SIZE = 52;
-	const int SUIT_SIZE = 13;
-	PlayingCard *deck[DECK_SIZE]; // array of pointers to class objects
+    player.setStake(getStake());
 
-		// Initialize and display a card deck
-	for(int i = 0; i < 4; i++) {
-		for(int j = 0; j<SUIT_SIZE; j++) {
-			deck[i * SUIT_SIZE + j] = new PlayingCard(values[j], suits[i]);
-			cout << deck[i * SUIT_SIZE + j]->getCardCode();
-			cout << " ";
-		}
-		cout << endl;
-	}
-	cout << endl;
-
-		// Add each from deck to hand, then remove card from hand
-		// before adding next card. Check funcs.
-	for(int i = 0; i < DECK_SIZE; i++) {
-		cout << deck[i]->getCardCode();
-		myHand.takeCard(deck[i]);
-
-		deck[i] = nullptr;  // Remove card from deck
-		cout << " : ";
-		cout << myHand.showHand();
-		cout << " : " << myHand.getLowScore()
-			 << " : " << myHand.getHighScore()
-			 << " : " << myHand.busted()
-			 << endl;
-		if(!myHand.wantCard()) {
-			cout << "\nClearing hand\n";
-			myHand.clearHand();
-		}
-
-	} // end for
-
-#endif // TEST_HAND_METHODS
-
-#ifdef TEST_DEALER_METHODS
-
-    cout << "\nThis checks dealer specific methods " << endl;
-    // check dealing capability
-    cout << "First, the dealer dealing an unshuffled deck" << endl;
-    int cardsOnLine = 0;
-    while ( myHand.cardsLeft() > 0 )
-    {
-        cout << myHand.dealCard()->getCardCode() << " ";
-        cardsOnLine++;
-        if ( cardsOnLine > 12 )
+    bool donePlaying = false;
+    do {
+        // make sure deck is good
+        if ( dealer.cardsLeft() < MINDECK )
         {
-            cout << endl;
-            cardsOnLine = 0;
+            cout << endl << "Reshuffling deck\n";
+            dealer.shuffle();
         }
-    }
 
-    // reset and redeal
-    cout << "\nNow with a new shuffled deck" << endl;
-    myHand.shuffle();
-    while ( myHand.cardsLeft() > 0 )
-    {
-        cout << myHand.dealCard()->getCardCode() << " ";
-        cardsOnLine++;
-        if ( cardsOnLine > 12 )
+        // get bet
+        bet = getBet(player.getStake());
+        player.makeBet(bet);
+
+        // deal starting cards;
+        player.takeCard(dealer.dealCard());
+        dealer.takeCard(dealer.dealCard());
+        player.takeCard(dealer.dealCard());
+        dealer.takeCard(dealer.dealCard());
+
+        // show starting position
+        showTable(dealer, player);
+
+        // get player hits
+        do{
+            hit = getResponse("Do you want a hit(y/n)?");
+            if ( hit )
+            {
+                hit = player.takeCard(dealer.dealCard());
+                if ( !hit )
+                    cout << "\nYou can not take another card!!" << endl;
+                else
+                    showTable(dealer, player);
+            }
+        } while ( hit );
+
+        // now show dealer down card
+        showFullTable(dealer, player);
+
+        // now get dealer careds if nneded
+        if ( !player.busted() )
         {
-            cout << endl;
-            cardsOnLine = 0;
+            while ( dealer.wantCard() )
+            {
+                cout << endl << "Dealer takes a card" << endl;
+                dealer.takeCard(dealer.dealCard());
+                showFullTable(dealer, player);
+            }
         }
-    }
 
-#endif // TEST_DEALER_METHODS
+        // decide who won
+        if ( player.busted() )
+        {
+            cout << "You busted, you lost" << endl;
+            player.lost();
+        }
+        else if ( dealer.busted() )
+        {
+            cout << "Dealer busted, you won" << endl;
+            player.won();
+        }
+        else if ( player.getScore() > dealer.getScore() )
+        {
+            cout << "You beat the dealers hand" << endl;
+            player.won();
+        }
+        else if ( player.getScore() < dealer.getScore() )
+        {
+            cout << "Dealers hand beat yours" << endl;
+            player.lost();
+        }
+        else
+        {
+            cout << "Push, neither won" << endl;
+        }
+
+        // update your stake and toss the old cards
+        cout << "Your stake is now " << player.getStake() << endl;
+        player.clearHand();
+        dealer.clearHand();
+
+        // see if done
+        donePlaying = getResponse("Are you done playing (y/n)?");
+    } while ( !donePlaying );
+
+
+    return 0;
 }
 
+// show the table with dealer card down
+void showTable(Dealer & dealer, Player & player)
+{
+    cout << endl << "The current table is " << endl;
+    cout << "  dealer: ";
+    cout << dealer.showHand() << endl;
+    cout << "  player: ";
+    cout << player.showHand() << endl;
 
+}
+
+// show the table with dealer cards showing
+void showFullTable(Dealer & dealer, Player & player)
+{
+    cout << endl << "The full table is " << endl;
+    cout << "  dealer: ";
+    cout << dealer.fullHand() << endl;
+    cout << "  player: ";
+    cout << player.showHand() << endl;
+
+}
+
+// get a new legal bet
+int getBet(int stake)
+{
+    int bet;
+    bool valid = false;
+    do {
+        valid = true;
+        cout << "Enter your bet (between 1 and your stake): ";
+        cin >> bet;
+        if ( cin.fail() )
+        {
+            cout << "Invalid input " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            valid = false;
+        }
+        else
+        if ( bet <= 0 or bet > stake )
+        {
+            cout << "Invalid bet amount" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            valid = false;
+        }
+    } while ( !valid );
+    return bet;
+}
+
+// get a valid stake
+int getStake(){
+    int stake;
+    bool valid;
+    do {
+        cout << "Enter your starting gambling stake: ";
+        cin >> stake;
+        valid = true;
+        if ( cin.fail() )
+        {
+            cout << "Invalid input " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            valid = false;
+        }
+        else
+        if ( stake <= 0 )
+        {
+            cout << "Invalid stake amount" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            valid = false;
+        }
+    } while ( !valid );
+    return stake;
+}
+
+// get a yes or no response to a question
+bool getResponse(string question){
+    char response;
+    bool done = false;
+    bool invalidResponse = true;
+    do {
+        cout << question << " ";
+        cin >> response;
+        switch (response){
+            case 'y':
+            case 'Y':
+                done = true;
+                invalidResponse = false;
+                break;
+            case 'n':
+            case 'N':
+                done = false;
+                invalidResponse = false;
+                break;
+            default:
+                invalidResponse = true;
+        }
+    } while ( invalidResponse );
+    return done;
+}
