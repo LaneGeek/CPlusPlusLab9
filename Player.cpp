@@ -26,13 +26,14 @@ int Player::getStake() {
     return stake;
 }
 
+// method allowed to be overridden
+std::string Player::showHand() {
+    return myHand->getAllCardCodes();
+}
+
 // other methods
 bool Player::takeCard(PlayingCard *c) {
     return myHand->addCard(c);
-}
-
-std::string Player::showHand() {
-    return myHand->getAllCardCodes();
 }
 
 int Player::getLowScore() {

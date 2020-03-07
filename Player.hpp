@@ -24,9 +24,11 @@ public:
     // getter
     int getStake();
 
+    // method allowed to be overridden
+    virtual std::string showHand();
+
     // other methods
     bool takeCard(PlayingCard *c);
-    virtual std::string showHand();
     int getLowScore();
     int getHighScore();
     int getScore();

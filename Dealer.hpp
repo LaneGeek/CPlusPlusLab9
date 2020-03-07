@@ -15,14 +15,13 @@ public:
     // destructor
     ~Dealer();
 
+    // overridden method
     std::string showHand() override;
 
+    // other methods
     std::string fullHand();
-
     PlayingCard *dealCard();
-
     int cardsLeft();
-
     void shuffle();
 };
 

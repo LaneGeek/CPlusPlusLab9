@@ -15,19 +15,20 @@ Dealer::~Dealer() {
     delete theDeck;
 }
 
+// overridden method
 std::string Dealer::showHand() {
     std::string output = myHand->getAllCardCodes();
     output = "XX " + output.substr(3, output.length() - 2);
     return output;
 }
 
+// other methods
 std::string Dealer::fullHand() {
     return myHand->getAllCardCodes();
 }
 
 PlayingCard *Dealer::dealCard() {
-    PlayingCard *card = new PlayingCard();
-    card = theDeck->dealCard();
+    PlayingCard *card = theDeck->dealCard();
     return card;
 }
 
@@ -36,5 +37,8 @@ int Dealer::cardsLeft() {
 }
 
 void Dealer::shuffle() {
-    theDeck->shuffle(1);
+    // delete the old deck
+    delete theDeck;
+    // create a new deck and shuffle it once
+    theDeck = new PlayingCardDeck(1);
 }
