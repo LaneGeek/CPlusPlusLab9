@@ -2,11 +2,11 @@
 
 // constructors
 Dealer::Dealer() {
-    theDeck = new PlayingCardDeck();
+    theDeck = new PlayingCardDeck;
 }
 
 Dealer::Dealer(int numShuffles) : Player(numShuffles) {
-    theDeck = new PlayingCardDeck();
+    theDeck = new PlayingCardDeck;
     theDeck->shuffle(numShuffles);
 }
 

@@ -2,12 +2,12 @@
 
 // constructors
 Player::Player() {
-    myHand = new BlackJackHand();
+    myHand = new BlackJackHand;
     stake = 0;
 }
 
 Player::Player(int stake) {
-    myHand = new BlackJackHand();
+    myHand = new BlackJackHand;
     this->stake = stake;
 }
 
